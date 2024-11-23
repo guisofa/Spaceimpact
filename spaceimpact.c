@@ -216,11 +216,14 @@ int main(){
 
 	background* bg = cria_background("fase 1");
 	player* player = cria_player(X_SCREEN/2, Y_SCREEN/2);
-	inimigo* inimigos = cria_inimigo(X_SCREEN + 100, Y_SCREEN - 100, X_SCREEN, Y_SCREEN, 0, NULL);
-	//inimigos = cria_inimigo(X_SCREEN + 100, Y_SCREEN - 12, X_SCREEN, Y_SCREEN, 1, inimigos);
-	//inimigos = cria_inimigo(X_SCREEN + 100, 12, X_SCREEN, Y_SCREEN, 1, inimigos);
-	inimigos = cria_inimigo(X_SCREEN + 100, Y_SCREEN/2, X_SCREEN, Y_SCREEN, 2, inimigos);
-	inimigos = cria_inimigo(X_SCREEN + 200, Y_SCREEN - 200, X_SCREEN, Y_SCREEN, 3, inimigos);
+	inimigo* inimigos;
+	inimigos = cria_inimigo(X_SCREEN + 100, 125, X_SCREEN, Y_SCREEN, 3, NULL);
+	inimigos = cria_inimigo(X_SCREEN + 100, 250, X_SCREEN, Y_SCREEN, 3, inimigos);
+	inimigos = cria_inimigo(X_SCREEN + 100, 375, X_SCREEN, Y_SCREEN, 3, inimigos);
+	inimigos = cria_inimigo(X_SCREEN + 100, 250, X_SCREEN, Y_SCREEN, 3, inimigos);
+	for (int i = 0; i < 15; i++) {
+		inimigos = cria_inimigo(X_SCREEN + 200 + 32*i, Y_SCREEN/2, X_SCREEN, Y_SCREEN, 2, inimigos);
+	}
 
 	ALLEGRO_EVENT event;
 	al_start_timer(timer);
