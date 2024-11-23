@@ -34,7 +34,7 @@ void desenha_tela(background* bg, player* p, inimigo* i, ALLEGRO_FONT* font) {
 		al_draw_filled_circle(b->x, b->y, 4, al_map_rgb(0, 255, 0));
 	
 	if (p->invencibilidade % 20 < 10)
-		al_draw_bitmap(p->sprite, p->x - p->largura/2, p->y - p->altura/2, 0);
+		al_draw_bitmap(p->sprite[p->sprite_estado], p->x - p->largura/2, p->y - p->altura/2, 0);
 	al_draw_rectangle(p->x - p->largura/2, p->y - p->altura/2, p->x + p->largura/2, p->y + p->altura/2, al_map_rgb(0, 0, 255), 1);
 	
 	for (bala* b = p->arma->disparos; b != NULL; b = (bala*) b->prox)
@@ -166,8 +166,14 @@ void atualiza_posicoes(background* bg, player* p, inimigo** i) {
 
 	if (p->controle->cima) move_player(p, 0, X_SCREEN, Y_SCREEN);
 	if (p->controle->baixo) move_player(p, 1, X_SCREEN, Y_SCREEN);
-	if (p->controle->direita) move_player(p, 2, X_SCREEN, Y_SCREEN);
-	if (p->controle->esquerda) move_player(p, 3, X_SCREEN, Y_SCREEN);
+	if (p->controle->direita) {
+		move_player(p, 2, X_SCREEN, Y_SCREEN);
+		if (p->sprite_estado < 5) p->sprite_estado++;
+	}
+	if (p->controle->esquerda) {
+		move_player(p, 3, X_SCREEN, Y_SCREEN);
+		if (p->sprite_estado > 0) p->sprite_estado--;
+	}
 
 	*i = move_inimigo(*i, X_SCREEN, Y_SCREEN);
 	balas_perdidas = move_balas(balas_perdidas, X_SCREEN, Y_SCREEN);

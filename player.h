@@ -16,7 +16,8 @@
 #define PLAYER_SHOT_STEP 8
 
 typedef struct {
-	ALLEGRO_BITMAP* sprite;
+	ALLEGRO_BITMAP* sprite[6];
+	unsigned char sprite_estado;
 	unsigned short altura;
 	unsigned short largura;
 	short x;

@@ -49,6 +49,21 @@ inimigo* cria_inimigo(short x, short y, int x_max, int y_max, unsigned char tipo
             novo->flags[0] = 0;
             novo->flags[1] = 0;
             novo->prox = (struct inimigo*)lista;
+            break;
+        case 3:
+            novo->sprite = al_load_bitmap("3.png");
+            novo->altura = 139;
+            novo->largura = 125;
+            novo->x = x;
+            novo->y = y;
+            novo->hp = 10;
+            novo->step = 1;
+            novo->arma = NULL;
+            novo->tipo = tipo;
+            novo->flags[0] = 0;
+            novo->flags[1] = 0;
+            novo->prox = (struct inimigo*)lista;
+            break;
     }
 
     return novo;
@@ -59,6 +74,7 @@ inimigo* move_inimigo(inimigo* i, int x_max, int y_max) {
 
     inimigo* aux;
     switch(i->tipo) {
+        case 3:
         case 0:
             i->x -= i->step;
             if (i->x + i->largura/2 < 0) {

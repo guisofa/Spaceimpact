@@ -14,7 +14,13 @@ player* cria_player(short x, short y) {
 	novo->controle = cria_joystick();
 	novo->arma = cria_arma(PLAYER_SHOT_COOLDOWN);
 
-	novo->sprite = al_load_bitmap("nave.png");
+	novo->sprite[0] = al_load_bitmap("nave/0.png");
+	novo->sprite[1] = al_load_bitmap("nave/1.png");
+	novo->sprite[2] = al_load_bitmap("nave/2.png");
+	novo->sprite[3] = al_load_bitmap("nave/3.png");
+	novo->sprite[4] = al_load_bitmap("nave/4.png");
+	novo->sprite[5] = al_load_bitmap("nave/5.png");
+	novo->sprite_estado = 0;
 
 	return novo;
 }
@@ -54,7 +60,12 @@ void player_atira(player* p) {
 
 player* destroi_player(player* p) {
 	destroi_joystick(p->controle);
-	al_destroy_bitmap(p->sprite);
+	al_destroy_bitmap(p->sprite[0]);
+	al_destroy_bitmap(p->sprite[1]);
+	al_destroy_bitmap(p->sprite[2]);
+	al_destroy_bitmap(p->sprite[3]);
+	al_destroy_bitmap(p->sprite[4]);
+	al_destroy_bitmap(p->sprite[5]);
 	bala* b = p->arma->disparos;
 	bala* aux;
 	while (b) {
