@@ -33,8 +33,12 @@ void desenha_tela(background* bg, player* p, inimigo* i, ALLEGRO_FONT* font) {
 	for (bala* b = balas_perdidas; b != NULL; b = (bala*) b->prox)
 		al_draw_filled_circle(b->x, b->y, 4, al_map_rgb(0, 255, 0));
 	
-	if (p->invencibilidade % 20 < 10)
-		al_draw_bitmap(p->sprite[p->sprite_estado], p->x - p->largura/2, p->y - p->altura/2, 0);
+	if (p->invencibilidade % 20 < 10) {
+		if ((p->controle->cima && p->controle->baixo) || (!p->controle->cima && !p->controle->baixo))
+			al_draw_bitmap(p->sprite[p->sprite_estado], p->x - p->largura/2, p->y - p->altura/2, 0);
+		else if (p->controle->cima) al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, -(ALLEGRO_PI / 15), 0);
+		else al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, ALLEGRO_PI / 15, 0);
+	}
 	al_draw_rectangle(p->x - p->largura/2, p->y - p->altura/2, p->x + p->largura/2, p->y + p->altura/2, al_map_rgb(0, 0, 255), 1);
 	
 	for (bala* b = p->arma->disparos; b != NULL; b = (bala*) b->prox)
@@ -216,14 +220,12 @@ int main(){
 
 	background* bg = cria_background("fase 1");
 	player* player = cria_player(X_SCREEN/2, Y_SCREEN/2);
-	inimigo* inimigos;
-	inimigos = cria_inimigo(X_SCREEN + 100, 125, X_SCREEN, Y_SCREEN, 3, NULL);
-	inimigos = cria_inimigo(X_SCREEN + 100, 250, X_SCREEN, Y_SCREEN, 3, inimigos);
-	inimigos = cria_inimigo(X_SCREEN + 100, 375, X_SCREEN, Y_SCREEN, 3, inimigos);
-	inimigos = cria_inimigo(X_SCREEN + 100, 250, X_SCREEN, Y_SCREEN, 3, inimigos);
-	for (int i = 0; i < 15; i++) {
-		inimigos = cria_inimigo(X_SCREEN + 200 + 32*i, Y_SCREEN/2, X_SCREEN, Y_SCREEN, 2, inimigos);
-	}
+	inimigo* inimigos = cria_inimigo(X_SCREEN + 100, 60, X_SCREEN, Y_SCREEN, 2, NULL);
+	inimigos = cria_inimigo(X_SCREEN + 120, 120, X_SCREEN, Y_SCREEN, 2, inimigos);
+	inimigos = cria_inimigo(X_SCREEN + 140, 180, X_SCREEN, Y_SCREEN, 2, inimigos);
+	inimigos = cria_inimigo(X_SCREEN + 160, 240, X_SCREEN, Y_SCREEN, 2, inimigos);
+	inimigos = cria_inimigo(X_SCREEN + 180, 300, X_SCREEN, Y_SCREEN, 2, inimigos);
+	
 
 	ALLEGRO_EVENT event;
 	al_start_timer(timer);

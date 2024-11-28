@@ -42,7 +42,7 @@ inimigo* cria_inimigo(short x, short y, int x_max, int y_max, unsigned char tipo
             novo->largura = 64;
             novo->x = x;
             novo->y = y;
-            novo->hp = 3;
+            novo->hp = 2;
             novo->step = 5;
             novo->arma = cria_arma(45);
             novo->tipo = tipo;
@@ -61,9 +61,21 @@ inimigo* cria_inimigo(short x, short y, int x_max, int y_max, unsigned char tipo
             novo->arma = NULL;
             novo->tipo = tipo;
             novo->flags[0] = 0;
-            novo->flags[1] = 0;
             novo->prox = (struct inimigo*)lista;
             break;
+        case 4:
+            novo->sprite = al_load_bitmap("4.png");
+            novo->altura = 31;
+            novo->largura = 37;
+            novo->x = x;
+            novo->y = y;
+            novo->hp = 1;
+            novo->step = 3;
+            novo->arma = cria_arma(25);
+            novo->tipo = tipo;
+            novo->flags[0] = 0;
+            novo->flags[1] = 0;
+            novo->prox = (struct inimigo*)lista;
     }
 
     return novo;
@@ -108,25 +120,42 @@ inimigo* move_inimigo(inimigo* i, int x_max, int y_max) {
                 i->prox = (struct inimigo*)move_inimigo((inimigo*)i->prox, x_max, y_max);
                 return i;
             }
-            if (!i->flags[0]) i->flags[0] = rng(i->altura/2, y_max - i->altura/2);
+            if (!i->flags[1]) i->flags[1] = rng(i->altura/2, y_max - i->altura/2);
 
-            if (abs(i->flags[0] - i->y) > i->step) {
-                if (i->flags[0] > i->y ) i->y += i->step;
+            if (abs(i->flags[1] - i->y) > i->step) {
+                if (i->flags[1] > i->y ) i->y += i->step;
                 else i->y -= i->step;
                 i->arma->disparos = move_balas(i->arma->disparos, x_max, y_max);
                 i->prox = (struct inimigo*)move_inimigo((inimigo*)i->prox, x_max, y_max);
                 return i;
             }
 
-            i->y = i->flags[0];
+            i->y = i->flags[1];
             if (i->arma->cooldown == 0) {
                 atira(i->arma, i->x - i->largura/2, i->y, 5, 3);
-                i->flags[0] = rng(i->altura/2, y_max - i->altura/2);
+                i->flags[1] = rng(i->altura/2, y_max - i->altura/2);
             }
             else i->arma->cooldown--;
             i->arma->disparos = move_balas(i->arma->disparos, x_max, y_max);
             
             i->prox = (struct inimigo*)move_inimigo((inimigo*)i->prox, x_max, y_max);
+            return i;
+        case 4:
+            i->x -= i->step;
+            if (i->x + i->largura/2 < 0) {
+                aux = i;
+                i = move_inimigo((inimigo*)i->prox, x_max, y_max);
+                destroi_inimigo(aux);
+            }
+            else {
+                if (i->arma->cooldown == 0) {
+                    atira(i->arma, i->x - i->largura/2, i->y - ((1/4) * i->altura), 10, 3);
+                    atira(i->arma, i->x - i->largura/2, i->y + ((1/4) * i->altura), 10, 3);
+                }
+                else i->arma->cooldown--;
+                i->arma->disparos = move_balas(i->arma->disparos, x_max, y_max);
+                i->prox = (struct inimigo*)move_inimigo((inimigo*)i->prox, x_max, y_max);
+            }
             return i;
     }
     return NULL;
