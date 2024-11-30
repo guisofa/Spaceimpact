@@ -4,7 +4,7 @@ LDFLAGS = -lm -lallegro -lallegro_primitives -lallegro_font -lallegro_ttf -lalle
 CC = gcc             # Compilador
 
 # Arquivos-objeto
-objects = spaceimpact.o background.o player.o joystick.o arma.o balas.o inimigos.o
+objects = spaceimpact.o background.o player.o joystick.o arma.o balas.o inimigos.o chefes.o
 
 all: spaceimpact
 
@@ -31,6 +31,9 @@ balas.o: balas.c balas.h
 
 inimigos.o: inimigos.c inimigos.h
 	$(CC) -c $(CFLAGS) -o inimigos.o inimigos.c
+
+chefes.o: chefes.c chefes.h
+	$(CC) -c $(CFLAGS) -o chefes.o chefes.c
 
 clean:
 	rm -f *.o SP

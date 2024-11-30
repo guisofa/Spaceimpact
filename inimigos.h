@@ -21,6 +21,8 @@ typedef struct {
     struct inimigo *prox;
 } inimigo;
 
+int rng(int min, int max);
+
 inimigo* cria_inimigo(short x, short y, int x_max, int y_max, unsigned char tipo, inimigo* prox);
 inimigo* destroi_inimigo(inimigo* i);
 
