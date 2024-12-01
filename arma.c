@@ -14,6 +14,11 @@ void atira(arma* a, short x, short y, unsigned char step, unsigned char trajetor
 	a->cooldown = a->cooldown_inicial;
 }
 
+void muda_cooldown(arma* a, unsigned char novo_cd) {
+	a->cooldown = novo_cd;
+	a->cooldown_inicial = novo_cd;
+}
+
 arma* destroi_arma(arma* a) {
 	if (!a) return NULL;
 	free(a);

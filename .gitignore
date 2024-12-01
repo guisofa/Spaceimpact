@@ -6,5 +6,6 @@ joystick.o
 player.o
 spaceimpact.o
 chefes.o
+colisoes.o
 SP
 explosao
