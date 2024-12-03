@@ -26,17 +26,70 @@ int colisao_player_bola(player* p, ball* b) {
     return 1;
 }
 
+/*
+ball* ultimo = b->bolas;
+    for (ball* bola = b->bolas; bola != NULL;) {
+        if (sqrt((bola->x - d->x)*(bola->x - d->x) + (bola->y - d->y)*(bola->y - d->y)) <= bola->raio) {
+            atira(b->arma, bola->x, bola->y, 6, 0);
+            atira(b->arma, bola->x, bola->y, 6, 1);
+            atira(b->arma, bola->x, bola->y, 6, 2);
+            atira(b->arma, bola->x, bola->y, 6, 3);
+            if (ultimo != bola) {
+                ultimo->prox = bola->prox;
+                destroi_bola(bola);
+                bola = (ball*)ultimo->prox;
+            }
+            else {
+                ultimo =(ball*) bola->prox;
+				if (bola == b->bolas)
+					b->bolas = ultimo;
+				destroi_bola(bola);
+				bola = ultimo;
+            }
+            return 1;
+        }
+        ultimo = bola;
+        bola = (ball*)bola->prox;
+    }
+*/
+int check_collision(player* p, inimigo* i, drop** d, spawner* s, baller* b) {
+	short p_teto = p->y - p->altura/2;
+	short p_chao = p->y + p->altura/2;
+	short p_dir =  p->x + p->largura/2;
+	short p_esq =  p->x - p->largura/2;
 
-int check_collision(player* p, inimigo* i, spawner* s, baller* b) {
+	drop* ultimo = *d;
+	for (drop* atual = *d; atual != NULL;) {
+		if ((p_teto <= atual->y + DROP_TAM/2 && p_chao >= atual->y - DROP_TAM/2) && (p_dir >= atual->x - DROP_TAM/2 && p_esq <= atual->x + DROP_TAM/2))	{
+			pega_drop(p, atual);
+			if (ultimo != atual) {
+				ultimo->prox = atual->prox;
+				destroi_drop(atual);
+				atual = (drop*)ultimo->prox;
+				if (atual)
+					atual->ante = (struct drop*)ultimo;
+			}
+			else {
+				ultimo = (drop*)atual->prox;
+				if (atual == *d)
+					*d = ultimo;
+				destroi_drop(atual);
+				atual = ultimo;
+				if (atual)
+					atual->ante = NULL;
+			}
+		}
+		else {
+			ultimo = atual;
+			atual = (drop*)atual->prox;
+		}
+	}
+
 	if (p->invencibilidade) {
 		p->invencibilidade--;
 		return 0;
 	}
 
-	short p_teto = p->y - p->altura/2;
-	short p_chao = p->y + p->altura/2;
-	short p_dir =  p->x + p->largura/2;
-	short p_esq =  p->x - p->largura/2;
 	for (inimigo* atual = i; atual != NULL; atual = (inimigo*)atual->prox) {
 		if ((p_teto <= atual->y + atual->altura/2 && p_chao >= atual->y - atual->altura/2) && (p_dir >= atual->x - atual->largura/2 && p_esq <= atual->x + atual->largura/2))
 			return 1;

@@ -9,13 +9,14 @@
 #include "inimigos.h"
 #include "chefes.h"
 #include "colisoes.h"
+#include "drops.h"
 
 #define X_SCREEN 1000
 #define Y_SCREEN 500
 
 bala* balas_perdidas = NULL;
 
-void desenha_tela(background* bg, player* p, inimigo* i, spawner* s, baller* b, ALLEGRO_FONT* font) {
+void desenha_tela(background* bg, player* p, inimigo* i, drop* drops, spawner* s, baller* b, ALLEGRO_FONT* font) {
 	al_draw_bitmap(bg->poeira.bitmap, bg->poeira.x, 0, ALLEGRO_FLIP_HORIZONTAL * bg->flipped);
 	al_draw_bitmap(bg->poeira.bitmap, bg->poeira.x + X_SCREEN, 0, ALLEGRO_FLIP_HORIZONTAL * !bg->flipped);
 	al_draw_bitmap(bg->estrelas.bitmap, bg->estrelas.x, 0, 0);
@@ -24,6 +25,11 @@ void desenha_tela(background* bg, player* p, inimigo* i, spawner* s, baller* b, 
 	al_draw_bitmap(bg->planetas1.bitmap, bg->planetas1.x + X_SCREEN, 0, 0);
 	al_draw_bitmap(bg->planetas2.bitmap, bg->planetas2.x, 0, 0);
 	al_draw_bitmap(bg->planetas2.bitmap, bg->planetas2.x + X_SCREEN, 0, 0);
+
+	for (drop* d = drops; d != NULL; d = (drop*)d->prox) {
+		al_draw_bitmap(d->sprite, d->x - DROP_TAM/2, d->y - DROP_TAM/2, 0);
+		al_draw_rounded_rectangle(d->x - DROP_TAM/2, d->y - DROP_TAM/2, d->x + DROP_TAM/2, d->y + DROP_TAM/2, 1, 1, al_map_rgb(0, 0, 255), 3);
+	}
 
 	for (inimigo* atual = i; atual != NULL; atual = (inimigo*)atual->prox) {
 		al_draw_bitmap(atual->sprite, atual->x - atual->largura/2, atual->y - atual->altura/2, ALLEGRO_FLIP_VERTICAL * atual->flags[0]);
@@ -68,10 +74,18 @@ void desenha_tela(background* bg, player* p, inimigo* i, spawner* s, baller* b, 
 	}
 	
 	if (p->invencibilidade % 20 < 10) {
-		if ((p->controle->cima && p->controle->baixo) || (!p->controle->cima && !p->controle->baixo))
-			al_draw_bitmap(p->sprite[p->sprite_estado], p->x - p->largura/2, p->y - p->altura/2, 0);
-		else if (p->controle->cima) al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, -(ALLEGRO_PI / 15), 0);
-		else al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, ALLEGRO_PI / 15, 0);
+		if (p->drop_ativo == 1) {
+			if ((p->controle->cima && p->controle->baixo) || (!p->controle->cima && !p->controle->baixo))
+				al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura, p->altura, p->x, p->y, 0.5, 0.5, 0, 0);
+			else if (p->controle->cima) al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura, p->altura, p->x, p->y, 0.5, 0.5, -(ALLEGRO_PI / 15), 0);
+			else al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura, p->altura, p->x, p->y, 0.5, 0.5, ALLEGRO_PI / 15, 0);
+		}
+		else {
+			if ((p->controle->cima && p->controle->baixo) || (!p->controle->cima && !p->controle->baixo))
+				al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, 0, 0);
+			else if (p->controle->cima) al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, -(ALLEGRO_PI / 15), 0);
+			else al_draw_scaled_rotated_bitmap(p->sprite[p->sprite_estado], p->largura/2, p->altura/2, p->x, p->y, 1, 1, ALLEGRO_PI / 15, 0);
+		}
 	}
 	al_draw_rectangle(p->x - p->largura/2, p->y - p->altura/2, p->x + p->largura/2, p->y + p->altura/2, al_map_rgb(0, 0, 255), 1);
 	
@@ -92,8 +106,9 @@ void desenha_tela(background* bg, player* p, inimigo* i, spawner* s, baller* b, 
 		al_draw_filled_rectangle (20, Y_SCREEN - 40, 20 + 19 * b->hp, Y_SCREEN - 30, al_map_rgb(255, 0, 0));
 }
 
-void atualiza_posicoes(background* bg, player* p, inimigo** i, spawner* s, baller* b) {
+void atualiza_posicoes(background* bg, player* p, inimigo** i, drop** d, spawner* s, baller* b) {
 	move_background(bg, X_SCREEN);
+	*d = move_drop(*d, X_SCREEN, Y_SCREEN);
 
 	if (p->controle->cima) move_player(p, 0, X_SCREEN, Y_SCREEN);
 	if (p->controle->baixo) move_player(p, 1, X_SCREEN, Y_SCREEN);
@@ -105,6 +120,8 @@ void atualiza_posicoes(background* bg, player* p, inimigo** i, spawner* s, balle
 		move_player(p, 3, X_SCREEN, Y_SCREEN);
 		if (p->sprite_estado > 0) p->sprite_estado--;
 	}
+	if (p->tempo_restante) p->tempo_restante--;
+	else desativa_drop(p);
 
 	*i = move_inimigo(*i, X_SCREEN, Y_SCREEN);
 	balas_perdidas = move_balas(balas_perdidas, X_SCREEN, Y_SCREEN);
@@ -119,7 +136,7 @@ void atualiza_posicoes(background* bg, player* p, inimigo** i, spawner* s, balle
 	else p->arma->cooldown--;
 	p->arma->disparos = move_balas(p->arma->disparos, X_SCREEN, Y_SCREEN);
 
-	if (check_collision(p, *i, s, b)) {
+	if (check_collision(p, *i, d, s, b)) {
 		p->hp--;
 		p->invencibilidade = PLAYER_INVENCIBILITY_FRAMES;
 	}
@@ -151,11 +168,11 @@ int main(){
 
 	background* bg = cria_background("fase 1");
 	player* player = cria_player(X_SCREEN/4, Y_SCREEN/2);
+	drop* drops = cria_drop(X_SCREEN/2, Y_SCREEN/2, 2, NULL);
+	drops = cria_drop(X_SCREEN/2 + 100, Y_SCREEN/2 - 100, 1, drops);
 	inimigo* inimigos = NULL;
 	spawner* spawner = NULL;
-	baller* baller = cria_baller(X_SCREEN + 200, Y_SCREEN/2);
-
-	
+	baller* baller = NULL;	
 
 	ALLEGRO_EVENT event;
 	al_start_timer(timer);
@@ -186,9 +203,9 @@ int main(){
 			else if (event.type == ALLEGRO_EVENT_DISPLAY_CLOSE) break;
 		}
 		else if (event.type == ALLEGRO_EVENT_TIMER) {
-			atualiza_posicoes(bg, player, &inimigos, spawner, baller);
+			atualiza_posicoes(bg, player, &inimigos, &drops, spawner, baller);
 			al_clear_to_color(al_map_rgb(0, 0, 0));
-			desenha_tela(bg, player, inimigos, spawner, baller, font);
+			desenha_tela(bg, player, inimigos, drops, spawner, baller, font);
 			al_flip_display();
 		}
 		else if (event.type == ALLEGRO_EVENT_KEY_DOWN) {

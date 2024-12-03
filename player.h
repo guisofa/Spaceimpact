@@ -5,6 +5,7 @@
 #include <allegro5/allegro_image.h>
 #include "joystick.h"
 #include "arma.h"
+#include "drops.h"
 
 #define HP_BASE 5
 #define SPRITE_ALTURA 27
@@ -24,6 +25,8 @@ typedef struct {
 	short y;
 	unsigned short hp;
 	unsigned char invencibilidade;
+	unsigned char drop_ativo;
+	unsigned char tempo_restante;
 	joystick* controle;
 	arma* arma;
 } player;
@@ -33,6 +36,8 @@ player* destroi_player(player* p);
 
 void move_player(player* p, unsigned char direcao, int x_max, int y_max);
 void player_atira(player* p);
+void pega_drop(player* p, drop* d);
+void desativa_drop(player* p);
 
 
 #endif

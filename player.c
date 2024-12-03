@@ -11,6 +11,9 @@ player* cria_player(short x, short y) {
 	novo->hp = HP_BASE;
 	novo->invencibilidade = 0;
 
+	novo->drop_ativo = 0;
+	novo->tempo_restante = 0;
+
 	novo->controle = cria_joystick();
 	novo->arma = cria_arma(PLAYER_SHOT_COOLDOWN);
 
@@ -55,7 +58,54 @@ void move_player(player* p, unsigned char direcao, int x_max, int y_max) {
 	}
 }
 void player_atira(player* p) {
+	if (p->drop_ativo == 2) {
+		atira(p->arma, p->x + p->largura/2, p->y, PLAYER_SHOT_STEP, 2);
+		atira(p->arma, p->x + p->largura/2 - 10, p->y, PLAYER_SHOT_STEP, 2);
+		atira(p->arma, p->x + p->largura/2 - 20, p->y, PLAYER_SHOT_STEP, 2);
+	}
 	atira(p->arma, p->x + p->largura/2, p->y, PLAYER_SHOT_STEP, 2);
+}
+
+void pega_drop(player* p, drop* d) {
+	switch (d->tag) {
+		case 0:
+			if (p->hp < 255)
+				p->hp++;
+			break;
+		case 1:
+			desativa_drop(p);
+			p->drop_ativo = 1;
+			p->tempo_restante = 150;
+
+			p->altura /= 2;
+			p->largura /= 2;
+			break;
+		case 2:
+			desativa_drop(p);
+			p->drop_ativo = 2;
+			p->tempo_restante = 150;
+			break;
+	}
+}
+
+void desativa_drop(player* p) {
+	if (!p->drop_ativo) return;
+
+	switch (p->drop_ativo) {
+		case 1:
+			p->drop_ativo = 0;
+			p->tempo_restante = 0;
+
+			p->altura *= 2;
+			p->largura *= 2;
+			break;
+		case 2:
+			p->drop_ativo = 0;
+			p->tempo_restante = 0;
+
+			muda_cooldown(p->arma, PLAYER_SHOT_COOLDOWN);
+			break;
+	}
 }
 
 player* destroi_player(player* p) {
