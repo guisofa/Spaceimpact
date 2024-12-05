@@ -141,7 +141,7 @@ void atualiza_posicoes(background* bg, player* p, inimigo** i, drop** d, spawner
 		p->invencibilidade = PLAYER_INVENCIBILITY_FRAMES;
 	}
 
-	if (check_hits(p, i, s, b, &balas_perdidas)) {
+	if (check_hits(p, i, s, b, &balas_perdidas, d)) {
 		p->hp--;
 		p->invencibilidade = PLAYER_INVENCIBILITY_FRAMES;
 	}
@@ -168,9 +168,11 @@ int main(){
 
 	background* bg = cria_background("fase 1");
 	player* player = cria_player(X_SCREEN/4, Y_SCREEN/2);
-	drop* drops = cria_drop(X_SCREEN/2, Y_SCREEN/2, 2, NULL);
-	drops = cria_drop(X_SCREEN/2 + 100, Y_SCREEN/2 - 100, 1, drops);
+	drop* drops = NULL;
 	inimigo* inimigos = NULL;
+	for (int i = 0; i < 50; i++) {
+		inimigos = cria_inimigo(X_SCREEN + 20*i, Y_SCREEN/2, X_SCREEN, Y_SCREEN, 2, inimigos);
+	}
 	spawner* spawner = NULL;
 	baller* baller = NULL;	
 

@@ -26,32 +26,6 @@ int colisao_player_bola(player* p, ball* b) {
     return 1;
 }
 
-/*
-ball* ultimo = b->bolas;
-    for (ball* bola = b->bolas; bola != NULL;) {
-        if (sqrt((bola->x - d->x)*(bola->x - d->x) + (bola->y - d->y)*(bola->y - d->y)) <= bola->raio) {
-            atira(b->arma, bola->x, bola->y, 6, 0);
-            atira(b->arma, bola->x, bola->y, 6, 1);
-            atira(b->arma, bola->x, bola->y, 6, 2);
-            atira(b->arma, bola->x, bola->y, 6, 3);
-            if (ultimo != bola) {
-                ultimo->prox = bola->prox;
-                destroi_bola(bola);
-                bola = (ball*)ultimo->prox;
-            }
-            else {
-                ultimo =(ball*) bola->prox;
-				if (bola == b->bolas)
-					b->bolas = ultimo;
-				destroi_bola(bola);
-				bola = ultimo;
-            }
-            return 1;
-        }
-        ultimo = bola;
-        bola = (ball*)bola->prox;
-    }
-*/
 int check_collision(player* p, inimigo* i, drop** d, spawner* s, baller* b) {
 	short p_teto = p->y - p->altura/2;
 	short p_chao = p->y + p->altura/2;
@@ -112,7 +86,7 @@ int check_collision(player* p, inimigo* i, drop** d, spawner* s, baller* b) {
 	return 0;
 }
 
-inimigo* check_hit_on_enemy(bala* b, inimigo* i, bala** balas_perdidas, unsigned char* hit) {
+inimigo* check_hit_on_enemy(bala* b, inimigo* i, bala** balas_perdidas, drop** drops, unsigned char* hit) {
 	if (!i) return NULL;
 
 	inimigo* aux;
@@ -130,12 +104,17 @@ inimigo* check_hit_on_enemy(bala* b, inimigo* i, bala** balas_perdidas, unsigned
 					*balas_perdidas = i->arma->disparos;
 				}
 			}
+			
+			if (rng(1, 10) == 1) {
+				*drops = cria_drop(i->x, i->y, rng(0, 3), *drops);
+			}
+			
 			aux = (inimigo*)i->prox;
 			destroi_inimigo(i);
 			return aux;
 		}
 	}
-	else i->prox = (struct inimigo*)check_hit_on_enemy(b, (inimigo*)i->prox, balas_perdidas, hit);
+	else i->prox = (struct inimigo*)check_hit_on_enemy(b, (inimigo*)i->prox, balas_perdidas, drops, hit);
 	return i;
 }
 
@@ -219,13 +198,13 @@ int check_hit_on_baller(bala* d, baller* b, bala** balas_perdidas) {
     return 0;
 }
 
-int check_hits(player* p, inimigo** i, spawner* s, baller* baller, bala** balas_perdidas) {
+int check_hits(player* p, inimigo** i, spawner* s, baller* baller, bala** balas_perdidas, drop** drops) {
 	unsigned char hit;
 	bala* ultimo = p->arma->disparos;
 
 	for (bala* b = p->arma->disparos; b != NULL;) {
 		hit = 0;
-		*i = check_hit_on_enemy(b, *i, balas_perdidas, &hit);
+		*i = check_hit_on_enemy(b, *i, balas_perdidas, drops, &hit);
 		if (hit) {
 			if (ultimo != b) {
 				ultimo->prox = b->prox;

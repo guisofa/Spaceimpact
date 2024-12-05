@@ -6,6 +6,7 @@ drop* cria_drop (short x, short y, unsigned char tag, drop* prox) {
     if (tag == 0) novo->sprite = al_load_bitmap("drops/0.png");
     else if (tag == 1) novo->sprite = al_load_bitmap("drops/1.png");
     else if (tag == 2) novo->sprite = al_load_bitmap("drops/2.png");
+    else if (tag == 3) novo->sprite = al_load_bitmap("drops/3.png");
     
     novo->x = x;
     novo->y = y;

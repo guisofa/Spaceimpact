@@ -62,6 +62,13 @@ void player_atira(player* p) {
 		atira(p->arma, p->x + p->largura/2, p->y, PLAYER_SHOT_STEP, 2);
 		atira(p->arma, p->x + p->largura/2 - 10, p->y, PLAYER_SHOT_STEP, 2);
 		atira(p->arma, p->x + p->largura/2 - 20, p->y, PLAYER_SHOT_STEP, 2);
+		return;
+	}
+	if (p->drop_ativo == 3) {
+		atira(p->arma, p->x + p->largura/2, p->y - p->altura/2, PLAYER_SHOT_STEP, 2);
+		atira(p->arma, p->x + p->largura/2, p->y, PLAYER_SHOT_STEP, 2);
+		atira(p->arma, p->x + p->largura/2, p->y + p->altura/2, PLAYER_SHOT_STEP, 2);
+		return;
 	}
 	atira(p->arma, p->x + p->largura/2, p->y, PLAYER_SHOT_STEP, 2);
 }
@@ -83,6 +90,11 @@ void pega_drop(player* p, drop* d) {
 		case 2:
 			desativa_drop(p);
 			p->drop_ativo = 2;
+			p->tempo_restante = 150;
+			break;
+		case 3:
+			desativa_drop(p);
+			p->drop_ativo = 3;
 			p->tempo_restante = 150;
 			break;
 	}
